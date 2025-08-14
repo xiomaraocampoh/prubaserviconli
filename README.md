@@ -79,8 +79,7 @@ Todos los endpoints requieren autorización con JWT (Authorization: Bearer <toke
 | `GET`    | `/api/v1/tareas/filtrar?estado=EN_PROGRESO&prioridad=ALTA` | Filtrar tareas por estado y prioridad                |
 
 Ejemplo POST /api/v1/tareas
-json
-Copiar código
+
 {
 "tipo": "Cita médica",
 "paciente": "Carlos Ramírez",
@@ -107,8 +106,7 @@ Copiar código
 "fechaRecordatorio": "2025-07-31T09:00:00"
 }
 🛠️ Ejemplo PUT /api/v1/tareas/{id}
-json
-Copiar código
+
 {
 "tipo": "Reprogramación de cita",
 "paciente": "Carlos Ramírez",
@@ -118,7 +116,7 @@ Copiar código
 "observaciones": "Cambio de fecha por vacaciones.",
 "telefono": "3214567890",
 "doctor": "Dra. Gómez",
-"ubicacion": "Consultorio 5",
+"ubicacion": "carrera 15 ",
 "fecha": "2025-08-05",
 "hora": "14:00",
 "tipoPaciente": "BENEFICIARIO",

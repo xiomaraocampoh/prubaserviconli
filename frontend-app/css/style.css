@@ -144,6 +144,24 @@ body {
     background: #e5e7eb;
 }
 
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
 .kanban-board {
     display: flex;
     gap: 2rem;
@@ -221,14 +239,13 @@ body {
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 500;
+    text-transform: capitalize;
 }
 
-.task-type.consulta { background: #3b82f6; }
-.task-type.examen { background: #8b5cf6; }
-.task-type.procedimiento { background: #f59e0b; }
-.task-type.cirugia { background: #ef4444; }
-.task-type.especialista { background: #60a5fa; } /* New type color */
-
+.task-type.especialista { background: #60a5fa; }
+.task-type.medicina { background: #8b5cf6; }
+.task-type.laboratorio { background: #f59e0b; }
+.task-type.examen { background: #ef4444; }
 
 .task-priority {
     padding: 0.25rem 0.5rem;
@@ -237,9 +254,10 @@ body {
     font-weight: 500;
 }
 
-.priority-alta { background: #fee2e2; color: #dc2626; }
-.priority-media { background: #fef3c7; color: #d97706; }
-.priority-baja { background: #dcfce7; color: #16a34a; }
+.priority-ALTA { background: #fee2e2; color: #dc2626; }
+.priority-MEDIA { background: #fef3c7; color: #d97706; }
+.priority-BAJA { background: #dcfce7; color: #16a34a; }
+.priority-URGENTE { background: #fecaca; color: #991b1b; }
 
 .task-patient {
     font-weight: 600;
@@ -263,11 +281,11 @@ body {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-    margin-top: 0.75rem; /* Added margin for spacing */
+    margin-top: 0.75rem;
 }
 
 .task-action {
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid #d1d5db;
     border-radius: 4px;
     font-size: 0.75rem;
@@ -282,16 +300,16 @@ body {
 
 .task-action.whatsapp { color: #25d366; border-color: #25d366; }
 .task-action.edit { color: #3b82f6; border-color: #3b82f6; }
-.task-action.notes { color: #8b5cf6; border-color: #8b5cf6; }
-.task-action.next-stage {
-    background: #00d4aa; /* Green color for next stage button */
+.task-action.advance {
+    background: #00d4aa;
     color: white;
     border-color: #00d4aa;
 }
-.task-action.next-stage:hover {
+.task-action.advance:hover {
     background: #00b894;
     border-color: #00b894;
 }
+.task-action.delete { color: #ef4444; border-color: #ef4444; }
 
 .modal {
     position: fixed;
@@ -310,11 +328,15 @@ body {
     display: flex;
 }
 
+.modal.hidden {
+    display: none;
+}
+
 .modal-content {
     background: white;
     border-radius: 8px;
     width: 90%;
-    max-width: 600px;
+    max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
 }
@@ -355,7 +377,7 @@ body {
     color: #374151;
 }
 
-.form-input {
+.form-input, .form-select {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #d1d5db;
@@ -363,7 +385,7 @@ body {
     font-size: 1rem;
 }
 
-.form-input:focus {
+.form-input:focus, .form-select:focus {
     outline: none;
     border-color: #00d4aa;
     box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
@@ -378,6 +400,24 @@ body {
     flex: 1;
 }
 
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+.input-group .form-input {
+    flex: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group .btn-search {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
 .modal-footer {
     padding: 1.5rem 2rem;
     border-top: 1px solid #e0e6ed;
@@ -386,22 +426,39 @@ body {
     gap: 1rem;
 }
 
+.section-title {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #00b894;
+    border-bottom: 1px solid #e0e6ed;
+    padding-bottom: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
 .notification {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: #10b981;
-    color: white;
     padding: 1rem 1.5rem;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 1001;
     display: none;
+    color: white;
 }
 
 .notification.show {
     display: block;
     animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+    background: #10b981;
+}
+
+.notification.error {
+    background: #ef4444;
 }
 
 @keyframes slideIn {
@@ -434,59 +491,16 @@ body {
     .filters {
         justify-content: center;
     }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
 }
 
-/* Estilos para el grupo de entrada con botón de búsqueda */
-.input-group {
-    display: flex;
-    width: 100%;
-}
-
-.input-group .form-input {
-    flex: 1;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.input-group .btn-search {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding: 0.75rem 1rem; /* Ajusta el padding para que coincida con el input */
-    font-size: 1rem; /* Asegura que el texto del botón se vea bien */
-}
-
-/* Estilos para los títulos de las secciones dentro del modal */
-.modal-content h4 {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #00b894; /* Color verde de tu tema Serviconli */
-    border-bottom: 1px solid #e0e6ed;
-    padding-bottom: 0.5rem;
-}
-
-/* Ajustes para los botones de acción en la tarjeta de tarea */
-.task-actions button {
-    background: #f3f4f6;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 1rem; /* Asegura que los iconos se vean bien */
-    line-height: 1; /* Alinea los iconos verticalmente */
-}
-
-.task-actions button:hover {
-    background: #e5e7eb;
-}
-
-/* Estilos específicos para los botones de WhatsApp y Recordatorio si deseas colores */
-.task-actions button:nth-child(1) { /* Botón de WhatsApp */
-    color: #25d366; /* Verde WhatsApp */
-    border-color: #25d366;
-}
-
-.task-actions button:nth-child(2) { /* Botón de Recordatorio (campanita) */
-    color: #ffc107; /* Amarillo para recordatorio */
-    border-color: #ffc107;
+.hidden {
+    display: none;
 }
