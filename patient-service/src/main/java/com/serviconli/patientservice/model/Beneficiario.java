@@ -1,11 +1,17 @@
 package com.serviconli.patientservice.model;
 
+import com.serviconli.patientservice.model.enums.EstadoCliente;
+import com.serviconli.patientservice.model.enums.NombreEps;
+import com.serviconli.patientservice.model.enums.Parentesco;
+import com.serviconli.patientservice.model.enums.TipoIdentificacion;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "beneficiarios")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Beneficiario {
@@ -14,14 +20,21 @@ public class Beneficiario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tipo_identificacion")
-    private String tipoIdentificacion;
-
-    @Column(name = "numero_identificacion")
-    private String numeroIdentificacion;
-
     @Column(name = "nombre_completo")
     private String nombreCompleto;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_identificacion", nullable = false)
+    private TipoIdentificacion tipoIdentificacion;
+
+    @Column(name = "numero_identificacion", unique = true)
+    private String numeroIdentificacion;
+
+    @Column(name = "fecha_nacimiento")
+    private String fechaNacimiento;
+
+    @Column(name = "fecha_expedicion")
+    private String fechaExpedicion;
 
     @Column(name = "celular")
     private String celular;
@@ -29,17 +42,28 @@ public class Beneficiario {
     @Column(name = "correo")
     private String correo;
 
-    @Column(name = "fecha_expedicion")
-    private String fechaExpedicion;
+    @Column(name = "direccion_residencia")
+    private String direccionResidencia;
 
-    @Column(name = "parentezco")
-    private String parentezco;
+    // -> CAMBIO: Usamos el Enum Parentesco
+    @Enumerated(EnumType.STRING)
+    @Column(name = "parentesco", nullable = false)
+    private Parentesco parentesco;
 
-    @Column(name = "eps")
-    private String eps;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_cotizante")
+    private EstadoCliente estado;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "eps", nullable = false)
+    private NombreEps eps;
+
+    @Column(name = "info_adicional")
+    private String infoAdicional;
 
     // Relación Many-to-One con Cotizante
-    @ManyToOne(fetch = FetchType.LAZY) // Carga perezosa para evitar cargar el cotizante si no es necesario
-    @JoinColumn(name = "cotizante_id", nullable = false) // Columna en la tabla beneficiarios que almacena la FK al cotizante
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cotizante_id", nullable = false)
     private Cotizante cotizante;
+
 }

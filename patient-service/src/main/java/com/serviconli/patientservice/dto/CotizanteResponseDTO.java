@@ -4,13 +4,12 @@ import com.serviconli.patientservice.model.enums.EstadoCliente;
 import com.serviconli.patientservice.model.enums.NombreEps;
 import com.serviconli.patientservice.model.enums.Parentesco;
 import com.serviconli.patientservice.model.enums.TipoIdentificacion;
-
 import lombok.Data;
 
-@Data
-public class BusquedaPacienteResponseDTO {
+import java.util.List;
 
-    private String tipoPaciente; // "COTIZANTE" o "BENEFICIARIO"
+@Data
+public class CotizanteResponseDTO {
     private Long id;
     private String nombreCompleto;
     private TipoIdentificacion tipoIdentificacion;
@@ -25,5 +24,6 @@ public class BusquedaPacienteResponseDTO {
     private NombreEps eps;
     private String infoAdicional;
 
-    private CotizanteSummaryDTO cotizante;
+    // Incluimos la lista de beneficiarios para una respuesta completa
+    private List<BeneficiarioResponseDTO> beneficiarios;
 }

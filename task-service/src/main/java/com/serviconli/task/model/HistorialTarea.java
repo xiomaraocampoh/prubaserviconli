@@ -1,14 +1,15 @@
 package com.serviconli.task.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "historial_tareas")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class HistorialTarea {
@@ -17,11 +18,11 @@ public class HistorialTarea {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Muchas entradas de historial para una tarea
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tarea_id", nullable = false)
     private Tarea tarea;
 
-    @Column(nullable = true, length = 30) // <-- Modificación aquí
+    @Column(nullable = true, length = 30)
     @Enumerated(EnumType.STRING)
     private EstadoTarea estadoAnterior;
 
@@ -33,10 +34,10 @@ public class HistorialTarea {
     private LocalDateTime fechaCambio;
 
     @Column(length = 255)
-    private String usuarioCambio; // Podría ser el usuario que realizó el cambio (futura integración de seguridad)
+    private String usuarioCambio;
 
     @Column(length = 500)
-    private String descripcionCambio; // Breve descripción del cambio
+    private String descripcionCambio;
 
     @PrePersist
     protected void onCreate() {

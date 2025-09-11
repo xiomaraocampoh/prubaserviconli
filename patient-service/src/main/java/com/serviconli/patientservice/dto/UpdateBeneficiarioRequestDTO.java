@@ -3,27 +3,18 @@ package com.serviconli.patientservice.dto;
 import com.serviconli.patientservice.model.enums.EstadoCliente;
 import com.serviconli.patientservice.model.enums.NombreEps;
 import com.serviconli.patientservice.model.enums.Parentesco;
-import com.serviconli.patientservice.model.enums.TipoIdentificacion;
-
-import lombok.Data;
+import jakarta.validation.constraints.Email;
+import lombok.*;
 
 @Data
-public class BusquedaPacienteResponseDTO {
-
-    private String tipoPaciente; // "COTIZANTE" o "BENEFICIARIO"
-    private Long id;
-    private String nombreCompleto;
-    private TipoIdentificacion tipoIdentificacion;
-    private String numeroIdentificacion;
+public class UpdateBeneficiarioRequestDTO {
     private String fechaNacimiento;
-    private String fechaExpedicion;
     private String celular;
+    @Email
     private String correo;
     private String direccionResidencia;
     private EstadoCliente estado;
     private Parentesco parentesco;
     private NombreEps eps;
     private String infoAdicional;
-
-    private CotizanteSummaryDTO cotizante;
 }

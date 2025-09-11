@@ -12,4 +12,7 @@ public interface BeneficiarioRepository extends JpaRepository<Beneficiario, Long
     List<Beneficiario> findByNombreCompletoContainingIgnoreCase(String nombre);
 
     Optional<Beneficiario> findByNumeroIdentificacion(String numeroIdentificacion);
+
+    List<Beneficiario> findByCotizanteNumeroIdentificacion(String numeroIdentificacionCotizante);
+
 }

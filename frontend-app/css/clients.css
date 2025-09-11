@@ -1,0 +1,366 @@
+
+/* Layout general */
+body {
+    margin: 0;
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+    background: linear-gradient(135deg, #00d4aa, #00b894);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    z-index: 2;
+}
+
+.logo-image {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.logo-image:hover {
+    transform: scale(1.05);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* ------------------------------
+   CONTROLS
+--------------------------------*/
+.controls {
+    background: #ffffff;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
+.filter-select,
+.form-input,
+.form-select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
+    border-color: #00d4aa;
+    color: #00d4aa;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00d4aa, #00b894);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+/* --- NUEVO ---: Estilo para el botón Clientes */
+.btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* ------------------------------
+   CLIENTS GRID
+--------------------------------*/
+.clients-container {
+    padding: 1.5rem;
+}
+
+.clients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.2rem;
+}
+
+.client-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+}
+
+.client-card:hover {
+    transform: translateY(-3px);
+}
+
+.client-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+}
+
+.client-type {
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.client-type.cotizante {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.client-type.beneficiario {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.client-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.client-id {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.6rem;
+}
+
+.client-details {
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+}
+
+.client-detail {
+    margin-bottom: 0.2rem;
+}
+
+.client-parentesco {
+    font-size: 0.85rem;
+    color: #475569;
+    font-style: italic;
+}
+
+.client-cotizante-info {
+    font-size: 0.8rem;
+    background: #f1f5f9;
+    padding: 0.4rem;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+}
+
+.client-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.client-action {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0.4rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.client-action.view {
+    background: #f3f4f6;
+}
+
+.client-action.edit {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.client-action.delete {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.client-action:hover {
+    opacity: 0.9;
+}
+
+/* ------------------------------
+   EMPTY STATE
+--------------------------------*/
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+/* ------------------------------
+   MODALS
+--------------------------------*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.45);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    width: 500px;
+    max-height: 85%;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body .form-group {
+    margin-bottom: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+/* ------------------------------
+   NOTIFICATION
+--------------------------------*/
+.notification {
+    display: none;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #fff;
+    z-index: 2000;
+}
+
+.notification.success { background: #16a34a; }
+.notification.error { background: #dc2626; }
+.notification.info { background: #2563eb; }
+
+textarea.form-input {
+    min-height: 70px;
+    resize: vertical;
+}

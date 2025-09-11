@@ -6,7 +6,7 @@ spring:
     name: task-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/data_central_de_citas?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/serviconli?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver

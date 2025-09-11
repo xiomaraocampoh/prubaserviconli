@@ -1,25 +1,32 @@
 package com.serviconli.task.service;
 
-import com.serviconli.task.dto.HistorialTareaResponseDTO;
-import com.serviconli.task.dto.TareaRequestDTO;
-import com.serviconli.task.dto.TareaResponseDTO;
-import com.serviconli.task.dto.TareaUpdateDTO;
-import com.serviconli.task.model.EstadoTarea;
-import com.serviconli.task.model.Prioridad;
+import com.serviconli.task.dto.*;
+import com.serviconli.task.model.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TareaService {
-    TareaResponseDTO crearTarea(TareaRequestDTO tareaRequestDTO);
-    TareaResponseDTO obtenerTareaPorId(Long id);
-    List<TareaResponseDTO> obtenerTodasLasTareas();
-    TareaResponseDTO actualizarTarea(Long id, TareaUpdateDTO tareaUpdateDTO);
+
+    // --- Operaciones CRUD básicas ---
+    TaskResponseDTO crearTarea(CreateTaskRequestDTO createTaskRequestDTO);
+    Optional<TaskResponseDTO> obtenerTareaPorId(Long id); // Devolver Optional es más seguro
+    List<TaskResponseDTO> obtenerTodasLasTareas();
+    TaskResponseDTO actualizarTarea(Long id, UpdateTaskDTO updateTaskDTO);
     void eliminarTarea(Long id);
-    TareaResponseDTO cambiarEstadoTarea(Long id, EstadoTarea nuevoEstado);
 
-    // Métodos de filtrado
-    List<TareaResponseDTO> filtrarTareas(EstadoTarea estado, Prioridad prioridad, String tipo, String paciente, String eps);
+    // --- Búsquedas Específicas
 
-    // Historial de cambios
+    List<TaskResponseDTO> buscarPorNumeroIdentificacionPaciente(String numeroIdentificacion);
+
+
+    List<TaskResponseDTO> buscarPorNombrePaciente(String nombre);
+
+    List<TaskResponseDTO> filtrarTareasPorAtributos(
+            Optional<EstadoTarea> estado,
+            Optional<Prioridad> prioridad,
+            Optional<TipoCita> tipoCita
+    );
+
     List<HistorialTareaResponseDTO> obtenerHistorialPorTarea(Long tareaId);
 }

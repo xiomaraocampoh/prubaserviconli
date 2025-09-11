@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ServiSoft - Sistema de Gestión</title>
+    <link rel="stylesheet" href="/frontend-app/css/Main.css">
+
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <img src="https://gruposerviconli.com/wp-content/uploads/2025/06/cropped-logo_Serviconli_slogan-09.png" alt="Serviconli" class="logo-image">
+        </div>
+        <div class="user-section">
+            <div class="user-welcome">
+                <span class="welcome-text">Bienvenido a Servisoft</span>
+                <span class="user-name">Administrador</span>
+            </div>
+            <div class="user-avatar">
+                <span>A</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="hero-section">
+            <h1 class="hero-title">Sistema de Gestión ServiSoft</h1>
+            <p class="hero-subtitle">Selecciona el módulo con el que deseas trabajar</p>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-card" onclick="navigateTo('clients.html')">
+                <div class="card-icon clients-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <h3 class="card-title">Gestión de Clientes</h3>
+                <p class="card-description">Administra la información de tus clientes (cotizantes y beneficiarios)</p>
+                <div class="card-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="menu-card" onclick="navigateTo('task.html')">
+                <div class="card-icon appointments-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <path d="M8 14h.01"/>
+                        <path d="M12 14h.01"/>
+                        <path d="M16 14h.01"/>
+                        <path d="M8 18h.01"/>
+                        <path d="M12 18h.01"/>
+                    </svg>
+                </div>
+                <h3 class="card-title">Central de Citas</h3>
+                <p class="card-description">Programa, gestiona y da seguimiento a todas tareas de la central de citas de serviconli</p>
+                <div class="card-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number"></div>
+                <div class="stat-label">Clientes Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"></div>
+                <div class="stat-label">Tareas pendientes</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 ServiSoft. Todos los derechos reservados.</p>
+    </footer>
+</div>
+<a href="registro.html" class="floating-btn">Crea una credencial para tu equipo</a>
+
+<script src="/frontend-app/js/main.js"></script>
+</body>
+</html>

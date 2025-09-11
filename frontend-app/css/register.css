@@ -1,7 +1,10 @@
 body {
-    background: linear-gradient(135deg, #e9f7ef, #d4efdf);
     font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #e9f7ef, #d4efdf);
     min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .card {

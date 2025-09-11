@@ -1,104 +1,96 @@
 package com.serviconli.task.controller;
 
-import com.serviconli.task.dto.HistorialTareaResponseDTO;
-import com.serviconli.task.dto.TareaRequestDTO;
-import com.serviconli.task.dto.TareaResponseDTO;
-import com.serviconli.task.dto.TareaUpdateDTO;
-import com.serviconli.task.exception.InvalidTaskStateException;
-import com.serviconli.task.exception.ResourceNotFoundException;
-import com.serviconli.task.model.EstadoTarea;
-import com.serviconli.task.model.Prioridad;
-import com.serviconli.task.service.TareaService;
+import com.serviconli.task.dto.*;
+import com.serviconli.task.exception.*;
+import com.serviconli.task.model.*;
+import com.serviconli.task.service.*;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/tareas")
+@RequiredArgsConstructor // Usa Lombok para inyectar las dependencias final
 public class TareaController {
 
-    private final TareaService tareaService;
+    private final TareaService tareaService; // Única dependencia necesaria
 
-    @Autowired
-    public TareaController(TareaService tareaService) {
-        this.tareaService = tareaService;
-    }
+    // --- ENDPOINTS CRUD ---
 
-    // Endpoint para crear una nueva tarea
     @PostMapping
-    public ResponseEntity<TareaResponseDTO> crearTarea(@Valid @RequestBody TareaRequestDTO tareaRequestDTO) {
-        TareaResponseDTO nuevaTarea = tareaService.crearTarea(tareaRequestDTO);
+    public ResponseEntity<TaskResponseDTO> crearTarea(@Valid @RequestBody CreateTaskRequestDTO createTaskRequestDTO) {
+        TaskResponseDTO nuevaTarea = tareaService.crearTarea(createTaskRequestDTO);
         return new ResponseEntity<>(nuevaTarea, HttpStatus.CREATED);
     }
 
-    // Endpoint para obtener una tarea por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<TareaResponseDTO> obtenerTareaPorId(@PathVariable Long id) {
-        TareaResponseDTO tarea = tareaService.obtenerTareaPorId(id);
-        return ResponseEntity.ok(tarea);
+    public ResponseEntity<TaskResponseDTO> obtenerTareaPorId(@PathVariable Long id) {
+        // Manejo elegante del Optional devuelto por el servicio
+        return tareaService.obtenerTareaPorId(id)
+                .map(ResponseEntity::ok) // Si la tarea existe, devuelve 200 OK con la tarea
+                .orElse(ResponseEntity.notFound().build()); // Si no, devuelve 404 Not Found
     }
 
-    // Endpoint para obtener todas las tareas
-    @GetMapping
-    public ResponseEntity<List<TareaResponseDTO>> obtenerTodasLasTareas() {
-        List<TareaResponseDTO> tareas = tareaService.obtenerTodasLasTareas();
-        return ResponseEntity.ok(tareas);
-    }
-
-    // Endpoint para actualizar una tarea existente (PUT para actualización completa o PATCH para parcial)
     @PutMapping("/{id}")
-    public ResponseEntity<TareaResponseDTO> actualizarTarea(@PathVariable Long id, @Valid @RequestBody TareaUpdateDTO tareaUpdateDTO) {
-        TareaResponseDTO tareaActualizada = tareaService.actualizarTarea(id, tareaUpdateDTO);
+    public ResponseEntity<TaskResponseDTO> actualizarTarea(@PathVariable Long id, @Valid @RequestBody UpdateTaskDTO updateTaskDTO) {
+        TaskResponseDTO tareaActualizada = tareaService.actualizarTarea(id, updateTaskDTO);
         return ResponseEntity.ok(tareaActualizada);
     }
 
-    // Endpoint para eliminar una tarea
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarTarea(@PathVariable Long id) {
         tareaService.eliminarTarea(id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build(); // Devuelve 204 No Content, estándar para DELETE exitoso
     }
 
-    // Endpoint para cambiar el estado de una tarea
-    @PatchMapping("/{id}/estado/{nuevoEstado}")
-    public ResponseEntity<TareaResponseDTO> cambiarEstadoTarea(@PathVariable Long id, @PathVariable EstadoTarea nuevoEstado) {
-        TareaResponseDTO tareaActualizada = tareaService.cambiarEstadoTarea(id, nuevoEstado);
-        return ResponseEntity.ok(tareaActualizada);
-    }
+    // --- ENDPOINTS DE BÚSQUEDA Y CONSULTA ---
 
-    // Endpoint para filtrar tareas
-    // Ejemplo de uso: /api/v1/tareas/filtrar?estado=PENDIENTE&prioridad=ALTA
-    @GetMapping("/filtrar")
-    public ResponseEntity<List<TareaResponseDTO>> filtrarTareas(
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDTO>> buscarTareas(
+            // Búsqueda por datos del paciente
+            @RequestParam(required = false) String numeroIdentificacion,
+            @RequestParam(required = false) String nombrePaciente,
+            // Filtros por atributos de la tarea
             @RequestParam(required = false) EstadoTarea estado,
             @RequestParam(required = false) Prioridad prioridad,
-            @RequestParam(required = false) String tipo,
-            @RequestParam(required = false) String paciente,
-            @RequestParam(required = false) String eps) {
-        List<TareaResponseDTO> tareasFiltradas = tareaService.filtrarTareas(estado, prioridad, tipo, paciente, eps);
-        return ResponseEntity.ok(tareasFiltradas);
+            @RequestParam(required = false) TipoCita tipoCita) {
+
+        List<TaskResponseDTO> tareas;
+
+        if (numeroIdentificacion != null && !numeroIdentificacion.isBlank()) {
+            tareas = tareaService.buscarPorNumeroIdentificacionPaciente(numeroIdentificacion);
+        } else if (nombrePaciente != null && !nombrePaciente.isBlank()) {
+            tareas = tareaService.buscarPorNombrePaciente(nombrePaciente);
+        } else if (estado != null || prioridad != null || tipoCita != null) {
+            tareas = tareaService.filtrarTareasPorAtributos(
+                    Optional.ofNullable(estado),
+                    Optional.ofNullable(prioridad),
+                    Optional.ofNullable(tipoCita)
+            );
+        } else {
+            // Si no hay ningún parámetro, devuelve todas las tareas
+            tareas = tareaService.obtenerTodasLasTareas();
+        }
+
+        return ResponseEntity.ok(tareas);
     }
 
-    // Endpoint para obtener el historial de una tarea
     @GetMapping("/{tareaId}/historial")
     public ResponseEntity<List<HistorialTareaResponseDTO>> obtenerHistorialPorTarea(@PathVariable Long tareaId) {
         List<HistorialTareaResponseDTO> historial = tareaService.obtenerHistorialPorTarea(tareaId);
         return ResponseEntity.ok(historial);
     }
 
-    // --- Manejo de Excepciones Global (para este controlador) ---
+    // --- MANEJO DE EXCEPCIONES ESPECÍFICAS DEL CONTROLADOR ---
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    @ExceptionHandler(PatientNotFoundException.class)
+    public ResponseEntity<String> handlePatientNotFoundException(PatientNotFoundException ex) {
+        // Devuelve un 404 cuando el paciente no se encuentra en patient-service
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(InvalidTaskStateException.class)
-    public ResponseEntity<String> handleInvalidTaskStateException(InvalidTaskStateException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

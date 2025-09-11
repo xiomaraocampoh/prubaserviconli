@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Tareas central de citas - Serviconli</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend-app/css/style.css" />
+</head>
+<body>
+<header class="header">
+  <di8v class="logo-container">
+    <img src="https://gruposerviconli.com/wp-content/uploads/2025/06/cropped-logo_Serviconli_slogan-09.png" alt="Serviconli" class="logo-image">
+  </di8v>
+  <div class="user-info">
+    <div class="user-avatar">cc</div>
+    <button class="btn btn-info" onclick="window.location.href='clients.html'"> Clientes</button>
+    <button class="btn btn-info" onclick="window.location.href='Main.html'"> Inicio</button>
+    <button class="btn btn-secondary" onclick="logout()"><i class="fas fa-sign-out-alt"></i>
+      Cerrar Sesión
+    </button>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="filters">
+    <div class="filter-group">
+      <label>Estado</label>
+      <select class="filter-select" id="filterEstado" onchange="applyFilters()">
+        <option value="">Todos los estados</option>
+        <option value="PENDIENTE">Pendiente</option>
+        <option value="EN_PROGRESO">En Progreso</option>
+        <option value="CITA_CONFIRMADA">Cita Confirmada</option>
+        <option value="ENVIADA">Enviada</option>
+        <option value="COMPLETADA">Completada</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Especialidad</label>
+      <select class="filter-select" id="filterEspecialidad" onchange="applyFilters()">
+        <option value="">Todas las especialidades</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Prioridad</label>
+      <select class="filter-select" id="filterPrioridad" onchange="applyFilters()">
+        <option value="">Todas las prioridades</option>
+        <option value="BAJA">Baja</option>
+        <option value="MEDIA">Media</option>
+        <option value="ALTA">Alta</option>
+        <option value="URGENTE">Urgente</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Buscar</label>
+      <input type="text" class="form-input" id="searchClients" placeholder="Buscar por nombre o ID" onkeyup="applyFilters()">
+    </div>
+
+  </div>
+  <div class="action-buttons">
+    <button class="btn btn-success" onclick="exportReport()">
+      <i class="fas fa-chart-bar"></i>  Exportar Reporte
+    </button>
+    <button class="btn btn-primary" onclick="openModal()">
+      <i class="fas fa-plus"></i> Nueva Tarea
+    </button>
+  </div>
+</div>
+
+<div id="reminderBanner" class="alert alert-warning text-center"></div>
+
+<div class="kanban-board" id="kanbanBoard">
+  <div class="kanban-column">
+    <div class="column-header">
+      <div class="column-title">
+        ⏳ Pendiente
+      </div>
+      <div class="column-count" id="count-PENDIENTE">0</div>
+    </div>
+    <div class="column-content" id="column-PENDIENTE">
+      <div class="empty-state">No hay tareas pendientes</div>
+    </div>
+  </div>
+
+  <div class="kanban-column">
+    <div class="column-header">
+      <div class="column-title">
+        🔄 En Progreso
+      </div>
+      <div class="column-count" id="count-EN_PROGRESO">0</div>
+    </div>
+    <div class="column-content" id="column-EN_PROGRESO">
+      <div class="empty-state">No hay tareas en progreso</div>
+    </div>
+  </div>
+
+  <div class="kanban-column">
+    <div class="column-header">
+      <div class="column-title">
+        ✅ Cita Confirmada
+      </div>
+      <div class="column-count" id="count-CITA_CONFIRMADA">0</div>
+    </div>
+    <div class="column-content" id="column-CITA_CONFIRMADA">
+      <div class="empty-state">No hay citas confirmadas</div>
+    </div>
+  </div>
+
+  <div class="kanban-column">
+    <div class="column-header">
+      <div class="column-title">
+        📤 Enviada
+      </div>
+      <div class="column-count" id="count-ENVIADA">0</div>
+    </div>
+    <div class="column-content" id="column-ENVIADA">
+      <div class="empty-state">No hay tareas enviadas</div>
+    </div>
+  </div>
+
+  <div class="kanban-column">
+    <div class="column-header">
+      <div class="column-title">
+        🏁 Completada
+      </div>
+      <div class="column-count" id="count-COMPLETADA">0</div>
+    </div>
+    <div class="column-content" id="column-COMPLETADA">
+      <div class="empty-state">No hay tareas completadas</div>
+    </div>
+  </div>
+</div>
+<!-- Modal para crear/editar tarea -->
+<div class="modal" id="taskModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Nueva Tarea</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div id="tipoPacienteSelector" class="text-center" style="margin-bottom: 20px;">
+        <h4>Seleccione el tipo de paciente</h4>
+        <button type="button" class="btn btn-primary" onclick="selectTipoPaciente('COTIZANTE')">
+          👤 Cotizante
+        </button>
+        <button type="button" class="btn btn-primary" onclick="selectTipoPaciente('BENEFICIARIO')">
+          👥 Beneficiario
+        </button>
+      </div>
+
+      <form id="taskForm">
+        <input type="hidden" id="pacienteNumeroIdentificacion">
+
+        <h3 class="section-title">Información del Paciente</h3>
+        <div class="form-group" style="position: relative;">
+          <label class="form-label">Buscar paciente</label>
+          <div style="display:flex; gap:8px;">
+            <input id="busquedaPaciente" class="form-input" placeholder="Nombre o identificación">
+            <button type="button" id="btnBuscarPaciente" class="btn btn-secondary">Buscar</button>
+          </div>
+          <div id="resultadosBusqueda" class="autocomplete-results"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo de Identificación</label>
+            <select class="form-select" id="tipoIdentificacionPaciente">
+              <option value="CÉDULA DE CIUDADANÍA">Cédula de Ciudadanía</option>
+              <option value="TARJETA DE IDENTIDAD">Tarjeta de Identidad</option>
+              <option value="CÉDULA DE EXTRANJERÍA">Cédula de Extranjería</option>
+              <option value="REGISTRO CIVIL">Registro Civil</option>
+              <option value="PASAPORTE">Pasaporte</option>
+              <option value="PEP: PERMISO ESPECIAL DE PERMANENCIA">PEP</option>
+              <option value="PT: PERMISO POR PROTECCIÓN TEMPORAL">PT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Número de Identificación</label>
+            <input type="text" class="form-input" id="numeroIdPaciente" >
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre Completo del Paciente</label>
+          <input type="text" class="form-input" id="nombrePaciente" >
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Celular</label>
+            <input type="text" class="form-input" id="celularPaciente" >
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-input" id="correoPaciente" >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Dirección de Residencia</label>
+          <input type="text" class="form-input" id="direccionPaciente" >
+        </div>
+
+        <!-- Sección visible solo si es beneficiario -->
+        <div id="cotizanteSection" style="display:none; margin-top:15px;">
+          <h4 class="section-title">Información del Cotizante</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre Completo</label>
+              <input type="text" class="form-input" id="cotizanteNombre" >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parentesco</label>
+            <select class="form-select" id="parentesco">
+              <option value="">Seleccione parentesco</option>
+              <option value="ESPOSO_A">Esposo(a)</option>
+              <option value="HIJO_A">Hijo(a)</option>
+              <option value="HERMANO_A">Hermano(a)</option>
+              <option value="MAMA">Mamá</option>
+              <option value="PAPA">Papá</option>
+              <option value="COTIZANTE">Cotizante</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tipo de Identificación</label>
+              <select id="cotizanteTipoId" class="form-select">
+                <option value="CÉDULA DE CIUDADANÍA">Cédula de Ciudadanía</option>
+                <option value="TARJETA DE IDENTIDAD">Tarjeta de Identidad</option>
+                <option value="CÉDULA DE EXTRANJERÍA">Cédula de Extranjería</option>
+                <option value="REGISTRO CIVIL">Registro Civil</option>
+                <option value="PASAPORTE">Pasaporte</option>
+                <option value="PEP: PERMISO ESPECIAL DE PERMANENCIA">PEP</option>
+                <option value="PT: PERMISO POR PROTECCIÓN TEMPORAL">PT</option>
+              </select>
+              <div class="form-group">
+              <label class="form-label">Número de Identificación</label>
+              <input type="text" class="form-input" id="cotizanteNumeroId" >
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">EPS</label>
+          <select id="eps" class="form-select" ></select>
+        </div>
+
+        <h3 class="section-title">Información de la Solicitud / Cita</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo de Cita</label>
+            <select id="tipoCita" class="form-select" required>
+              <option value="">Seleccione tipo</option>
+              <option value="ESPECIALISTA">Especialista</option>
+              <option value="AGENDAR_EXAMEN">Agendar Examen</option>
+              <option value="LABORATORIO">Laboratorio</option>
+              <option value="MEDICINA_GENERAL">Medicina General</option>
+              <option value="ODONTOLOGIA">Odontología</option>
+              <option value="AUTORIZACIONES">Autorizaciones</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Especialidad</label>
+            <input type="text" class="form-input" id="especialidad">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Autorización</label>
+            <input type="text" class="form-input" id="autorizacion">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Orden</label>
+            <input type="text" class="form-input" id="orden">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Radicado</label>
+            <input type="text" class="form-input" id="radicado">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Especificaciones</label>
+          <textarea class="form-textarea" id="especificaciones"></textarea>
+        </div>
+
+        <hr/>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha de Cita</label>
+            <input type="date" class="form-input" id="fechaCita">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora</label>
+            <input type="time" class="form-input" id="horaCita">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Doctor</label>
+            <input type="text" class="form-input" id="doctor">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dirección de la Cita</label>
+            <input type="text" class="form-input" id="direccionCita">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Lugar (Consultorio/Sala)</label>
+            <input type="text" class="form-input" id="lugarCita">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmación de Cita</label>
+            <input type="text" class="form-input" id="confirmacionCita" placeholder="Ej: Confirmado vía llamada">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Información Adicional de la Cita</label>
+          <textarea class="form-textarea" id="informacionCita"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Observaciones Generales</label>
+          <textarea class="form-textarea" id="observacion"></textarea>
+        </div>
+
+        <h3 class="section-title">Estado y Prioridad</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <select class="form-select" id="estado">
+              <option value="PENDIENTE" selected>Pendiente</option> <!-- ✅ ahora es seleccionado por defecto -->
+              <option value="EN_PROGRESO">En Progreso</option>
+              <option value="CITA_CONFIRMADA">Cita Confirmada</option>
+              <option value="ENVIADA">Enviada</option>
+              <option value="COMPLETADA">Completada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prioridad</label>
+            <select class="form-select" id="prioridad">
+              <option value="BAJA">Baja</option>
+              <option value="MEDIA" selected>Media</option>
+              <option value="ALTA">Alta</option>
+              <option value="URGENTE">Urgente</option>
+            </select>
+          </div>
+        </div>
+
+        <input type="hidden" id="fechaSolicitudServiconli">
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" onclick="saveTask()">
+        💾 Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para observaciones -->
+<div class="modal" id="observacionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Observaciones de la Tarea</h2>
+      <button class="modal-close" onclick="closeObservacionModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="observacionContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeObservacionModal()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification"></div>
+<!-- Librería SheetJS para generar Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script src="/frontend-app/js/task.js"></script>
+<audio id="reminderSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+</body>
+</html>

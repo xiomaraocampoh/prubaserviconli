@@ -1,9 +1,8 @@
 package com.serviconli.patientservice.controller;
 
-import com.serviconli.patientservice.dto.BeneficiarioDTO;
-import com.serviconli.patientservice.dto.BusquedaPacienteResponseDTO;
-import com.serviconli.patientservice.dto.CotizanteDTO;
+import com.serviconli.patientservice.dto.*;
 import com.serviconli.patientservice.service.PacienteService;
+import jakarta.validation.Valid; // Importante para activar las validaciones del DTO
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,48 +10,66 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Indica que esta clase es un controlador REST
-@RequestMapping("/api/v1/patients") // Define la ruta base para todos los endpoints en este controlador
-@RequiredArgsConstructor // Genera un constructor con todos los campos 'final' para inyección de dependencias
+@RestController
+@RequestMapping("/api/v1/patients")
+@RequiredArgsConstructor
 public class PacienteController {
 
-    private final PacienteService pacienteService; // Inyección del servicio
+    private final PacienteService pacienteService;
 
-    // Endpoint para registrar un nuevo cotizante
+    // CAMBIO: El cuerpo de la petición ahora es el DTO de creación correcto.
     @PostMapping("/cotizantes")
-    public ResponseEntity<CotizanteDTO> crearCotizante(@RequestBody CotizanteDTO cotizanteDTO) {
-        CotizanteDTO nuevoCotizante = pacienteService.crearCotizante(cotizanteDTO);
-        return new ResponseEntity<>(nuevoCotizante, HttpStatus.CREATED); // Retorna 201 Created
+    public ResponseEntity<CotizanteResponseDTO> crearCotizante(@Valid @RequestBody CreateCotizanteRequestDTO requestDTO) {
+        CotizanteResponseDTO nuevoCotizante = pacienteService.crearCotizante(requestDTO);
+        return new ResponseEntity<>(nuevoCotizante, HttpStatus.CREATED);
     }
 
-    // Endpoint para registrar un nuevo beneficiario
+    // CAMBIO: Igual que arriba, se usa el DTO de creación para beneficiarios.
     @PostMapping("/beneficiarios")
-    public ResponseEntity<BeneficiarioDTO> crearBeneficiario(@RequestBody BeneficiarioDTO beneficiarioDTO) {
-        BeneficiarioDTO nuevoBeneficiario = pacienteService.crearBeneficiario(beneficiarioDTO);
-        return new ResponseEntity<>(nuevoBeneficiario, HttpStatus.CREATED); // Retorna 201 Created
+    public ResponseEntity<BeneficiarioResponseDTO> crearBeneficiario(@Valid @RequestBody CreateBeneficiarioRequestDTO requestDTO) {
+        BeneficiarioResponseDTO nuevoBeneficiario = pacienteService.crearBeneficiario(requestDTO);
+        return new ResponseEntity<>(nuevoBeneficiario, HttpStatus.CREATED);
     }
 
-    // Endpoint para buscar pacientes por nombre (cotizantes o beneficiarios)
-    @GetMapping("/search/by-name")
-    public ResponseEntity<List<BusquedaPacienteResponseDTO>> buscarPacientesPorNombre(@RequestParam String name) {
-        List<BusquedaPacienteResponseDTO> pacientesEncontrados = pacienteService.buscarPorNombre(name);
-        if (pacientesEncontrados.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Retorna 204 No Content si no se encuentran resultados
-        }
-        return new ResponseEntity<>(pacientesEncontrados, HttpStatus.OK); // Retorna 200 OK
+    // MEJORA: Se devuelve 200 OK con una lista vacía si no hay resultados.
+    @GetMapping("/search")
+    public ResponseEntity<List<BusquedaPacienteResponseDTO>> buscarPacientesPorNombre(@RequestParam(name = "nombre") String nombre) {
+        List<BusquedaPacienteResponseDTO> pacientesEncontrados = pacienteService.buscarPorNombre(nombre);
+        // Devolver la lista (incluso si está vacía) con un estado 200 OK es más estándar.
+        return ResponseEntity.ok(pacientesEncontrados);
     }
 
-    // Endpoint para buscar un paciente por número de identificación
-    @GetMapping("/search/by-id")
-    public ResponseEntity<BusquedaPacienteResponseDTO> buscarPacientePorIdentificacion(@RequestParam String id) {
-        BusquedaPacienteResponseDTO pacienteEncontrado = pacienteService.buscarPorIdentificacion(id);
-        if (pacienteEncontrado == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Retorna 404 Not Found si el paciente no existe
-        }
-        return new ResponseEntity<>(pacienteEncontrado, HttpStatus.OK); // Retorna 200 OK
+    // CAMBIO Y MEJORA: Se usa @PathVariable y se maneja el Optional.
+    @GetMapping("/{numeroIdentificacion}")
+    public ResponseEntity<BusquedaPacienteResponseDTO> buscarPacientePorIdentificacion(@PathVariable String numeroIdentificacion) {
+        // La capa de servicio devuelve un Optional, que manejamos aquí.
+        return pacienteService.buscarPorIdentificacion(numeroIdentificacion)
+                .map(paciente -> ResponseEntity.ok(paciente)) // Si el paciente existe, devuelve 200 OK con el paciente.
+                .orElse(ResponseEntity.notFound().build());   // Si no existe, devuelve un 404 Not Found.
     }
 
-    // Consideraciones para futuras funcionalidades:
-    // @PutMapping para actualizar un paciente (tanto cotizante como beneficiario)
-    // @DeleteMapping para eliminar un paciente (considerar las implicaciones de FK)
+
+    // --- ENDPOINTS PARA ACTUALIZAR (PUT) Y ELIMINAR (DELETE) ---
+
+    @PutMapping("/cotizantes/{numeroIdentificacion}")
+    public ResponseEntity<CotizanteResponseDTO> updateCotizante(
+            @PathVariable String numeroIdentificacion,
+            @Valid @RequestBody UpdateCotizanteRequestDTO requestDTO) {
+        CotizanteResponseDTO cotizanteActualizado = pacienteService.updateCotizante(numeroIdentificacion, requestDTO);
+        return ResponseEntity.ok(cotizanteActualizado);
+    }
+
+    @PutMapping("/beneficiarios/{numeroIdentificacion}")
+    public ResponseEntity<BeneficiarioResponseDTO> updateBeneficiario(
+            @PathVariable String numeroIdentificacion,
+            @Valid @RequestBody UpdateBeneficiarioRequestDTO requestDTO) {
+        BeneficiarioResponseDTO beneficiarioActualizado = pacienteService.updateBeneficiario(numeroIdentificacion, requestDTO);
+        return ResponseEntity.ok(beneficiarioActualizado);
+    }
+
+    @DeleteMapping("/{numeroIdentificacion}")
+    public ResponseEntity<Void> deletePaciente(@PathVariable String numeroIdentificacion) {
+        pacienteService.deletePaciente(numeroIdentificacion);
+        return ResponseEntity.noContent().build(); // Devuelve un estado 204 No Content
+    }
 }
