@@ -93,41 +93,46 @@ body {
     min-width: 120px;
 }
 
+
 .action-buttons {
+    margin-left: auto;
     display: flex;
     gap: 1rem;
 }
 
 .btn {
     padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.875rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
+    transition: all 0.3s;
+    text-decoration: none;
+    border: none;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
 }
 
+.btn-secondary {
+    background: white;
+    color: #6c757d;
+    border: 2px solid #e9ecef;
+}
+
+.btn-secondary:hover {
+    border-color: #00d4aa;
+    color: #00d4aa;
+}
+
 .btn-primary {
-    background: #00d4aa;
+    background: linear-gradient(135deg, #00d4aa, #00b894);
     color: white;
 }
 
 .btn-primary:hover {
-    background: #00b894;
-}
-
-.btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-}
-
-.btn-secondary:hover {
-    background: #e5e7eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
 }
 
 .btn-success {
@@ -147,6 +152,19 @@ body {
 .btn-danger:hover {
     background: #c82333;
 }
+
+/* --- NUEVO ---: Estilo para el botón Clientes */
+.btn-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
 
 .kanban-board {
     display: flex;
@@ -218,20 +236,19 @@ body {
     margin-bottom: 0.75rem;
 }
 
-.task-type {
-    background: #3b82f6;
-    color: white;
+.task-state {
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 500;
-    text-transform: capitalize;
+    text-transform: uppercase;
 }
 
-.task-type.especialista { background: #60a5fa; }
-.task-type.medicina { background: #8b5cf6; }
-.task-type.laboratorio { background: #f59e0b; }
-.task-type.examen { background: #ef4444; }
+.state-PENDIENTE { background: #fef3c7; color: #d97706; }
+.state-EN_PROGRESO { background: #dbeafe; color: #2563eb; }
+.state-CITA_CONFIRMADA { background: #f3e8ff; color: #7c3aed; }
+.state-ENVIADA { background: #dcfce7; color: #16a34a; }
+.state-COMPLETADA { background: #f0f9ff; color: #0ea5e9; }
 
 .task-priority {
     padding: 0.25rem 0.5rem;
@@ -249,6 +266,7 @@ body {
     font-weight: 600;
     color: #111827;
     margin-bottom: 0.5rem;
+    font-size: 1.1rem;
 }
 
 .task-details {
@@ -261,6 +279,9 @@ body {
 .task-detail {
     font-size: 0.875rem;
     color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .task-actions {
@@ -363,15 +384,21 @@ body {
     color: #374151;
 }
 
-.form-input, .form-select {
+.form-input, .form-select, .form-textarea {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 1rem;
+    font-family: inherit;
 }
 
-.form-input:focus, .form-select:focus {
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
     outline: none;
     border-color: #00d4aa;
     box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
@@ -384,24 +411,6 @@ body {
 
 .form-row .form-group {
     flex: 1;
-}
-
-.input-group {
-    display: flex;
-    width: 100%;
-}
-
-.input-group .form-input {
-    flex: 1;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.input-group .btn-search {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
 }
 
 .modal-footer {
@@ -489,4 +498,99 @@ body {
 
 .hidden {
     display: none;
+}
+
+.cotizante-section {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.autocomplete-results {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+}
+
+.autocomplete-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.autocomplete-item:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* --- NUEVO ---: Visibilidad de secciones del modal controladas por JS */
+#patient-search-section, #task-creation-fields {
+    display: block;
+}
+
+#task-update-fields {
+    display: none;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
+.filter-select,
+.form-input,
+.form-select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* ==================== RECORDATORIOS ==================== */
+
+/* Banner fijo de recordatorio (opcional) */
+#reminderBanner {
+    display: none;
+    background: linear-gradient(135deg, #00b894, #00d4aa);
+    color: #5f370e;
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 6px;
+    margin: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Cuando se muestre junto con sonido, darle un pulso */
+#reminderBanner.sound-alert {
+    animation: pulse 1s ease-in-out 2;
+}
+
+/* Reutilizamos tus notificaciones emergentes */
+.notification.info {
+    background: #3b82f6; /* Azul info */
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
