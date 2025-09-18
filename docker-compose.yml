@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-serviconli
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: serviconli
+      MYSQL_USER: serviconli_user
+      MYSQL_PASSWORD: serviconli_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: auth-service
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/serviconli?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: serviconli_user
+      SPRING_DATASOURCE_PASSWORD: serviconli_pass
+      JWT_SECRET: 2LM1OEf2filBHvqs2JMdaQBj2sWCqg7g
+    depends_on:
+      - mysql
+
+  patient-service:
+    build:
+      context: .
+      dockerfile: patient-service/Dockerfile
+    container_name: patient-service
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/serviconli?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: serviconli_user
+      SPRING_DATASOURCE_PASSWORD: serviconli_pass
+    depends_on:
+      - mysql
+
+  task-service:
+    build:
+      context: .
+      dockerfile: task-service/Dockerfile
+    container_name: task-service
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/serviconli?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: serviconli_user
+      SPRING_DATASOURCE_PASSWORD: serviconli_pass
+      PATIENT_SERVICE_URL: http://patient-service:8083/api/v1
+    depends_on:
+      - mysql
+      - patient-service
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: 2LM1OEf2filBHvqs2JMdaQBj2sWCqg7g
+    depends_on:
+      - auth-service
+      - task-service
+      - patient-service
+
+volumes:
+  mysql_data:
