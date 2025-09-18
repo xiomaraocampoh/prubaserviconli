@@ -6,9 +6,9 @@ spring:
     name: task-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/serviconli?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-    username: root
-    password:
+    url: jdbc:mysql://217.15.168.108:3307/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: serviconli_user
+    password: serviconli_pass
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
