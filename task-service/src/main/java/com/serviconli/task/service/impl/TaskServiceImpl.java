@@ -229,7 +229,7 @@ public class TaskServiceImpl implements TareaService {
 
     private Mono<PatientInfoDTO> findPatientById(String id) {
         return webClient.get()
-                .uri("/patients/{id}", id) // Llama a GET /api/v1/patients/{id}
+                .uri("/api/v1/patients/{id}", id) // Llama a GET /api/v1/patients/{id}
                 .retrieve()
                 .bodyToMono(PatientInfoDTO.class);
     }
@@ -237,7 +237,7 @@ public class TaskServiceImpl implements TareaService {
     private Mono<List<String>> findPatientIdsByName(String name) {
         // Asume que patient-service tiene un endpoint para buscar por nombre
         return webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/patients/search")
+                .uri(uriBuilder -> uriBuilder.path("/api/v1/patients/search")
                         .queryParam("nombre", name)
                         .build())
                 .retrieve()
