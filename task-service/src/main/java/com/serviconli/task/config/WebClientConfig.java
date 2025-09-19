@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${PATIENT_SERVICE_URL:http://patient-service:8083/api/v1}")
+    @Value("${PATIENT_SERVICE_URL:http://localhost:8080/api/v1}")
     private String patientServiceUrl;
 
     @Bean

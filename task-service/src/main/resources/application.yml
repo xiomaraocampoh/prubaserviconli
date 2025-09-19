@@ -31,8 +31,3 @@ logging:
               BasicBinder: TRACE
     com:
       serviconli: DEBUG
-
-# URL del patient-service (para llamadas internas)
-patient:
-  service:
-    url: ${PATIENT_SERVICE_URL:http://patient-service:8083/api/v1}
