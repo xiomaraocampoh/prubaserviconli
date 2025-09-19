@@ -1,69 +1,53 @@
-version: "3.9"
-
 services:
-  mysql:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
-
   auth-service:
+    image: auth-service:latest
     build:
-      context: .
-      dockerfile: auth-service/Dockerfile
-    restart: always
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "${AUTH_PORT:-8081}:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: serviconli_user
-      SPRING_DATASOURCE_PASSWORD: serviconli_pass
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
-    depends_on:
-      - mysql
 
   patient-service:
+    image: patient-service:latest
     build:
-      context: .
-      dockerfile: patient-service/Dockerfile
-    restart: always
+      context: ./patient-service
+      dockerfile: Dockerfile
+    ports:
+      - "${PATIENT_PORT:-8083}:8083"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
-    depends_on:
-      - mysql
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
 
   task-service:
+    image: task-service:latest
     build:
-      context: .
-      dockerfile: task-service/Dockerfile
-    restart: always
+      context: ./task-service
+      dockerfile: Dockerfile
+    ports:
+      - "${TASK_PORT:-8082}:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
-      PATIENT_SERVICE_URL: http://patient-service:8083/api/v1
-    depends_on:
-      - mysql
-      - patient-service
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      PATIENT_SERVICE_URL: ${PATIENT_SERVICE_URL}
 
   api-gateway:
+    image: api-gateway:latest
     build:
-      context: .
-      dockerfile: api-gateway/Dockerfile
-    restart: always
+      context: ./api-gateway
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "${GATEWAY_PORT:-8080}:8080"
     environment:
       JWT_SECRET: ${JWT_SECRET}
-    depends_on:
-      - auth-service
-      - task-service
-      - patient-service
-
-volumes:
-  mysql_data:
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
+      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
+      PATIENT_SERVICE_URL: ${PATIENT_SERVICE_URL}
