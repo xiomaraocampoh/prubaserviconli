@@ -1,0 +1,42 @@
+worker_processes 1;
+events { worker_connections 1024; }
+
+http {
+  include       /etc/nginx/mime.types;
+  default_type  application/octet-stream;
+  sendfile        on;
+  keepalive_timeout 65;
+
+  # Sirve archivos estáticos
+  server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Si usas rutas tipo SPA (history), redirige a index.html
+    location / {
+      try_files $uri $uri/ /index.html;
+    }
+
+    # Proxy para evitar CORS: todas las llamadas a /api serán redirigidas al API Gateway
+    location /api/ {
+      # inyectado en build-time via envsubst: API_GATEWAY_HOST y API_GATEWAY_PORT
+      proxy_pass http://$API_GATEWAY_HOST:$API_GATEWAY_PORT;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_read_timeout 90;
+    }
+
+    # Opcional: si tus assets vienen con cache-control
+    location ~* \.(?:css|js|jpg|jpeg|gif|png|svg|ico|woff2|woff|ttf)$ {
+      expires 7d;
+      add_header Cache-Control "public";
+    }
+  }
+}

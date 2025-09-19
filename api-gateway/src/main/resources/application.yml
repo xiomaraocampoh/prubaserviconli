@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${GATEWAY_PORT:8080}
 
 jwt:
   secret: ${JWT_SECRET:2LM1OEf2filBHvqs2JMdaQBj2sWCqg7g}
@@ -11,20 +11,20 @@ spring:
         - PreserveHostHeader
       routes:
         - id: auth-service
-          uri: http://localhost:8081
+          uri:  ${AUTH_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/auth/**
 
      # Ruta para el servicio de tareas (protegida)
         - id: task-service-tareas
-          uri: http://localhost:8082
+          uri:  ${TASK_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/v1/tareas/**
           filters:
             - name: AuthenticationFilter
 
         - id: patient-service-route
-          uri: http://localhost:8083
+          uri: ${PATIENT_SERVICE_URL:http://localhost:8083}
           predicates:
             - Path=/api/v1/patients/**
           filters:
@@ -38,6 +38,7 @@ spring:
             allowedOrigins:
               - "http://localhost:5500" # Permite solicitudes desde tu frontend (ej. Live Server de VS Code)
               - "http://127.0.0.1:5500" # A veces, el navegador usa 127.0.0.1 en lugar de localhost
+              - "https://xiomaocampo.site"
             allowedMethods:
               - GET
               - POST
