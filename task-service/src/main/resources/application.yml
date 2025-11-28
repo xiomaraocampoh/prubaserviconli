@@ -6,7 +6,7 @@ spring:
     name: task-service
 
   datasource:
-    # Conexión directa a tu Docker local (puerto 3307)
+    # Conexión directa al puerto 3307 expuesto por Docker
     url: jdbc:mysql://localhost:3307/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: serviconli_pass
@@ -26,7 +26,11 @@ logging:
     org.hibernate.SQL: DEBUG
     com.serviconli: DEBUG
 
-# Configuración extra para conectar con Patient Service
+# Configuración para hablar con Patient Service
 patient:
   service:
+    # URL directa al puerto local del servicio de pacientes
     url: http://localhost:8083/api/v1
+
+jwt:
+  secret: 2LM1OEf2filBHvqs2JMdaQBj2sWCqg7g
