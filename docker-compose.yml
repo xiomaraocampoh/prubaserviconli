@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 1. Base de Datos MySQL Local
+  # 1. Base de Datos (El corazón del sistema)
   mysqldb:
     image: mysql:8.0
     container_name: serviconli_db
@@ -12,24 +12,29 @@ services:
       MYSQL_USER: serviconli_user
       MYSQL_PASSWORD: serviconli_pass
     ports:
-      - "3307:3306"  # Puerto externo 3307 para no chocar con otros MySQL
+      - "3307:3306" # 3307 para tu Windows (IntelliJ), 3306 interno para los contenedores
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d # Tu script SQL inicial
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - serviconli-network
 
   # 2. Auth Service
   auth-service:
-    build: ./auth-service
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
     container_name: auth-service
     ports:
       - "8081:8081"
     environment:
-      # Apuntamos al servicio 'mysqldb' definido arriba
+      # AQUÍ ESTÁ EL TRUCO: Sobrescribimos lo que diga el .env
+      # Usamos 'mysqldb' que es el nombre del servicio de arriba, no localhost
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: serviconli_pass
@@ -37,10 +42,14 @@ services:
     depends_on:
       mysqldb:
         condition: service_healthy
+    networks:
+      - serviconli-network
 
   # 3. Task Service
   task-service:
-    build: ./task-service
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
     container_name: task-service
     ports:
       - "8082:8082"
@@ -53,10 +62,14 @@ services:
     depends_on:
       mysqldb:
         condition: service_healthy
+    networks:
+      - serviconli-network
 
   # 4. Patient Service
   patient-service:
-    build: ./patient-service
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
     container_name: patient-service
     ports:
       - "8083:8083"
@@ -68,10 +81,14 @@ services:
     depends_on:
       mysqldb:
         condition: service_healthy
+    networks:
+      - serviconli-network
 
   # 5. API Gateway
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -84,8 +101,10 @@ services:
       - auth-service
       - task-service
       - patient-service
+    networks:
+      - serviconli-network
 
-  # 6. Frontend (Nginx)
+  # 6. Frontend
   frontend:
     build:
       context: ./frontend-app
@@ -94,9 +113,15 @@ services:
         API_GATEWAY_PORT: 8080
     container_name: frontend-app
     ports:
-      - "3000:80" # Accederás por localhost:3000
+      - "3000:80"
     depends_on:
       - api-gateway
+    networks:
+      - serviconli-network
 
 volumes:
   mysql_data:
+
+networks:
+  serviconli-network:
+    driver: bridge
