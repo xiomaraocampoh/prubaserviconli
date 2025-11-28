@@ -1,14 +1,15 @@
 server:
-  port: ${PATIENT_PORT:8083}
+  port: 8083
 
 spring:
   application:
     name: patient-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    # Conexión directa a tu Docker local (puerto 3307)
+    url: jdbc:mysql://localhost:3307/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: serviconli_pass
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -22,12 +23,5 @@ spring:
 
 logging:
   level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-    com:
-      serviconli: DEBUG
+    org.hibernate.SQL: DEBUG
+    com.serviconli: DEBUG
