@@ -25,7 +25,7 @@ public class GoogleSheetsService {
     private Sheets sheetsService;
 
     // ID de la hoja (lo obtienes de la URL de Google Sheets)
-    private static final String SPREADSHEET_ID = "1UlkWAcrhVUp3g0JpNuBzedEjI1bGR9cZf8xsPSLhFog";
+    private static final String SPREADSHEET_ID = "1R38f4eoCI0iLBhJCWHXnrTrToRbJZo5cGk2Cm2oSrjQ";
     private static final String HOJA = "CITAS ARMENIA"; // Nombre exacto de la hoja
     private static final String RANGE = HOJA + "!A1:V"; // Rango que cubre todas las columnas
 

@@ -1,53 +1,102 @@
+version: '3.8'
+
 services:
+  # 1. Base de Datos MySQL Local
+  mysqldb:
+    image: mysql:8.0
+    container_name: serviconli_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: serviconli
+      MYSQL_ROOT_PASSWORD: serviconli_pass
+      MYSQL_USER: serviconli_user
+      MYSQL_PASSWORD: serviconli_pass
+    ports:
+      - "3307:3306"  # Puerto externo 3307 para no chocar con otros MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d # Tu script SQL inicial
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Auth Service
   auth-service:
-    image: auth-service:latest
-    build:
-      context: ./auth-service
-      dockerfile: Dockerfile
+    build: ./auth-service
+    container_name: auth-service
     ports:
-      - "${AUTH_PORT:-8081}:8081"
+      - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      # Apuntamos al servicio 'mysqldb' definido arriba
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: serviconli_pass
       JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mysqldb:
+        condition: service_healthy
 
-  patient-service:
-    image: patient-service:latest
-    build:
-      context: ./patient-service
-      dockerfile: Dockerfile
-    ports:
-      - "${PATIENT_PORT:-8083}:8083"
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-
+  # 3. Task Service
   task-service:
-    image: task-service:latest
-    build:
-      context: ./task-service
-      dockerfile: Dockerfile
+    build: ./task-service
+    container_name: task-service
     ports:
-      - "${TASK_PORT:-8082}:8082"
+      - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: serviconli_pass
       JWT_SECRET: ${JWT_SECRET}
-      PATIENT_SERVICE_URL: ${PATIENT_SERVICE_URL}
+      PATIENT_SERVICE_URL: http://patient-service:8083/api/v1
+    depends_on:
+      mysqldb:
+        condition: service_healthy
 
-  api-gateway:
-    image: api-gateway:latest
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+  # 4. Patient Service
+  patient-service:
+    build: ./patient-service
+    container_name: patient-service
     ports:
-      - "${GATEWAY_PORT:-8080}:8080"
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/serviconli?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: serviconli_pass
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+
+  # 5. API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
     environment:
       JWT_SECRET: ${JWT_SECRET}
-      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
-      TASK_SERVICE_URL: ${TASK_SERVICE_URL}
-      PATIENT_SERVICE_URL: ${PATIENT_SERVICE_URL}
+      AUTH_SERVICE_URL: http://auth-service:8081
+      TASK_SERVICE_URL: http://task-service:8082
+      PATIENT_SERVICE_URL: http://patient-service:8083
+    depends_on:
+      - auth-service
+      - task-service
+      - patient-service
+
+  # 6. Frontend (Nginx)
+  frontend:
+    build:
+      context: ./frontend-app
+      args:
+        API_GATEWAY_HOST: localhost
+        API_GATEWAY_PORT: 8080
+    container_name: frontend-app
+    ports:
+      - "3000:80" # Accederás por localhost:3000
+    depends_on:
+      - api-gateway
+
+volumes:
+  mysql_data:
